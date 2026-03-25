@@ -75,10 +75,11 @@
     .info-label { font-size: 8px; font-family: 'DM Mono', monospace; color: rgba(87,87,87,0.4); letter-spacing: 0.12em; margin-bottom: 3px; }
     .info-value { font-size: 11px; font-weight: 700; color: #575757; line-height: 1.3; }
 
-    .vibe-section { padding: 14px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); }
-    .section-label { font-size: 8px; font-family: 'DM Mono', monospace; color: rgba(87,87,87,0.4); letter-spacing: 0.12em; margin-bottom: 8px; }
-    .traits { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-    .trait-tag { font-size: 11px; font-weight: 600; background: #EEF7FF; color: #00A1FF; padding: 3px 9px; border-radius: 20px; }
+    .vibe-section { padding: 14px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+    .section-label { font-size: 8px; font-family: 'DM Mono', monospace; color: rgba(87,87,87,0.4); letter-spacing: 0.12em; white-space: nowrap; flex-shrink: 0; }
+    .section-label-block { font-size: 8px; font-family: 'DM Mono', monospace; color: rgba(87,87,87,0.4); letter-spacing: 0.12em; margin-bottom: 8px; }
+    .traits { display: flex; flex-wrap: nowrap; gap: 6px; overflow: hidden; }
+    .trait-tag { font-size: 11px; font-weight: 600; background: #EEF7FF; color: #00A1FF; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
     .trait-desc { font-size: 12px; color: rgba(87,87,87,0.7); line-height: 1.65; }
 
     .cast-section { padding: 14px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); }
@@ -136,8 +137,8 @@
 <!-- LOADING -->
 <div id="screen-loading" class="screen">
   <div class="loading-icon">
-    <svg viewBox="0 0 100 100" style="width:44px;height:44px">
-      <path d="M50 8 C62 8 78 20 85 35 C92 50 92 70 82 82 C72 92 60 92 50 92 C40 92 28 92 18 82 C8 70 8 50 15 35 C22 20 38 8 50 8Z" fill="#00A1FF"/>
+    <svg viewBox="0 0 1600 1600" style="width:44px;height:44px">
+      <path d="M841.62 407.32C814.516 397.56 785.484 397.56 758.38 407.32C707.797 425.532 545.118 532.195 458.043 622C411.078 670.434 400 703.937 400 762.001C400 771.684 400 781.687 400 791.902C400.74 884.018 405.381 993.684 421.64 1047C449.746 1139.16 491.996 1200 759.001 1200H840.999C1108 1200 1150.25 1139.16 1178.36 1047C1194.62 993.684 1199.26 884.018 1200 791.897C1200 781.682 1200 771.684 1200 761.996C1200 703.932 1188.92 670.428 1141.96 621.995C1054.88 532.2 892.213 425.532 841.62 407.32Z" fill="#00A1FF"/>
     </svg>
   </div>
   <div id="loading-msg">티켓 인쇄 중...</div>
@@ -167,10 +168,17 @@
     <div class="ticket">
       <div class="ticket-header">
         <div class="ticket-logo">
-          <svg viewBox="0 0 100 100" style="width:18px;height:18px">
-            <path d="M50 8 C62 8 78 20 85 35 C92 50 92 70 82 82 C72 92 60 92 50 92 C40 92 28 92 18 82 C8 70 8 50 15 35 C22 20 38 8 50 8Z" fill="#00A1FF"/>
+          <svg viewBox="0 0 1600 1600" style="width:18px;height:18px">
+            <path d="M841.62 407.32C814.516 397.56 785.484 397.56 758.38 407.32C707.797 425.532 545.118 532.195 458.043 622C411.078 670.434 400 703.937 400 762.001C400 771.684 400 781.687 400 791.902C400.74 884.018 405.381 993.684 421.64 1047C449.746 1139.16 491.996 1200 759.001 1200H840.999C1108 1200 1150.25 1139.16 1178.36 1047C1194.62 993.684 1199.26 884.018 1200 791.897C1200 781.682 1200 771.684 1200 761.996C1200 703.932 1188.92 670.428 1141.96 621.995C1054.88 532.2 892.213 425.532 841.62 407.32Z" fill="#00A1FF"/>
           </svg>
-          <span class="logo-text" style="font-family:'Pretendard Variable',sans-serif;font-size:14px;font-weight:900;letter-spacing:-0.5px">Ohouse</span>
+          <svg viewBox="370 380 2380 540" style="height:11px">
+            <path d="M646.401 400.005C784.164 400.005 889.273 501.176 889.287 640.524C889.41 645.965 889.407 649.019 889.273 654.46C889.273 794.118 783.954 894.993 646.401 894.993C645.227 894.997 644.568 895.002 643.393 894.993C505.22 894.993 400.508 793.045 400.522 654.469C400.387 649.027 400.384 645.971 400.508 640.529C400.508 502.253 505.005 400.005 643.393 400.005C644.568 399.996 645.227 400.001 646.401 400.005ZM645.569 479.256C557.971 479.256 492.46 549.269 492.46 644.047L492.47 651.622H492.474C492.46 746.695 557.508 815.743 645.569 815.743C733.63 815.743 797.335 746.695 797.325 651.622L797.334 644.047C797.334 549.273 733.168 479.256 645.569 479.256Z" fill="black"/>
+            <path d="M930.445 400H1015.07V594.775C1026.71 576.417 1042.16 562.089 1061.41 551.79C1081.12 541.044 1102.83 535.671 1126.56 535.671C1151.64 535.671 1173.58 540.82 1192.38 551.119C1211.64 561.417 1226.64 576.193 1237.38 595.447C1248.13 614.253 1253.5 636.193 1253.5 661.268V889.625H1168.88V681.417C1168.88 660.372 1162.83 643.357 1150.74 630.372C1138.65 617.387 1122.31 610.895 1101.71 610.895C1083.36 610.895 1067.68 615.82 1054.7 625.671C1041.71 635.521 1031.86 650.074 1025.15 669.327C1018.43 688.133 1015.07 710.745 1015.07 737.163V889.625H930.445V400Z" fill="black"/>
+            <path d="M1470.83 535.675C1571.12 535.675 1647.64 609.116 1647.65 710.271C1647.74 714.22 1647.74 716.438 1647.64 720.387C1647.64 821.766 1570.97 894.993 1470.83 894.993C1469.97 894.996 1469.49 895 1468.64 894.993C1368.04 894.993 1291.81 820.987 1291.82 720.393C1291.72 716.443 1291.72 714.225 1291.81 710.275C1291.81 609.899 1367.89 535.676 1468.64 535.675C1469.49 535.669 1469.97 535.673 1470.83 535.675ZM1470.14 608.881C1417.45 608.881 1378.06 653.181 1378.06 713.15L1378.06 717.942H1378.06C1378.06 778.098 1417.18 821.787 1470.14 821.787C1523.1 821.787 1561.41 778.098 1561.4 717.942L1561.41 713.15C1561.41 653.184 1522.82 608.882 1470.14 608.881Z" fill="black"/>
+            <path d="M2009.03 889.628H1924.4V835.897C1912.76 854.255 1897.09 868.807 1877.39 879.553C1858.13 889.852 1836.64 895.001 1812.91 895.001C1788.28 895.001 1766.34 889.852 1747.09 879.553C1727.83 869.255 1712.83 854.702 1702.09 835.897C1691.79 816.643 1686.64 794.479 1686.64 769.404V541.047H1770.6V749.927C1770.6 770.524 1776.64 787.315 1788.73 800.3C1801.27 813.285 1817.61 819.777 1837.76 819.777C1856.12 819.777 1871.79 814.852 1884.77 805.001C1897.76 795.15 1907.61 780.822 1914.33 762.016C1921.04 743.21 1924.4 720.598 1924.4 694.181V541.047H2009.03V889.628Z" fill="black"/>
+            <path d="M2192.36 535.672C2248.94 535.672 2297.52 546.626 2334.82 581.153L2284.47 637.064C2260.17 615.9 2222.12 604.633 2192.36 604.633C2165.5 604.633 2146.02 615.597 2146.02 635.746C2146.02 652.537 2160.79 662.611 2183.63 667.313L2238.03 678.731C2297.14 690.82 2342.81 713.657 2342.81 784.85C2342.81 845.297 2285.72 894.998 2199.75 894.998C2135.03 894.998 2073.48 875.16 2045.92 833.182L2097.94 775.409C2128.26 804.407 2158.24 823.134 2199.75 823.134C2233.33 823.134 2256.84 808.357 2256.84 786.865C2256.84 768.731 2242.73 757.984 2219.23 753.283L2164.82 741.865C2111.09 730.447 2062.06 704.253 2062.06 635.746C2062.06 581.344 2111.76 535.672 2192.36 535.672Z" fill="black"/>
+            <path d="M2536.41 535.672C2650.59 535.672 2705.66 621.642 2705.66 705.597C2705.66 719.701 2704.32 736.493 2704.32 736.493H2449.77C2457.16 792.238 2492.08 823.805 2543.13 823.805C2582.44 823.805 2612.7 805.922 2643.75 777.145L2693.12 831.977C2660.09 873.666 2602.9 895 2541.11 895C2426.26 894.999 2366.48 806.343 2366.48 715C2366.48 624.329 2422.23 535.672 2536.41 535.672ZM2536.41 600.149C2492.75 600.149 2463.2 626.343 2452.45 672.686H2614.32C2610.96 631.045 2584.1 600.149 2536.41 600.149Z" fill="black"/>
+          </svg>
         </div>
         <span class="ticket-label">MOVIE TICKET</span>
       </div>
@@ -198,19 +206,18 @@
       </div>
 
       <div class="vibe-section">
-        <div class="section-label">THIS ROOM'S VIBE</div>
+        <div class="section-label">VIBE</div>
         <div class="traits" id="result-traits"></div>
-        <div class="trait-desc" id="result-traitdesc"></div>
       </div>
 
       <div class="cast-section">
-        <div class="section-label">CAST — 이 방에 사는 주인공은</div>
+        <div class="section-label-block">CAST — 이 방에 사는 주인공은</div>
         <div class="traits" id="result-cast-traits"></div>
         <div class="trait-desc" id="result-cast-desc"></div>
       </div>
 
       <div class="scenes-section">
-        <div class="section-label">KEY SCENES</div>
+        <div class="section-label-block">KEY SCENES</div>
         <div id="result-scenes"></div>
       </div>
 
@@ -280,7 +287,7 @@
     "규칙: 제목은 색깔+사물+시간 나열 패턴 금지. 여운 있는 제목으로.\n" +
     "장르: ロマンス/ミステリー/ファンタジー/ドラマ/ヒーリング/アートハウス 중 하나\n" +
     "장면: 공감가는 현실적 장면. 방에 이미 있는 아이템 추천 금지.\n\n" +
-    '{"genre":"장르","genreEmoji":"이모지","title":"제목(한국어-10글자)","tagline":"타글(15-25자)","year":"연도(1995-2024)","traits":["특성"],"traitDesc":"설명","castTraits":["주인공성격키워드4개"],"castDesc":"이방에사는주인공묘사(2-3문장)","scenes":["장면"],"ohouseIntro":"추천"}';
+    '{"genre":"장르","genreEmoji":"이모지","title":"제목(한국어-10글자)","tagline":"타글(15-25자)","year":"연도(1995-2024)","traits":["짧은키워드3개"],"castTraits":["주인공성격키워드4개"],"castDesc":"이방에사는주인공묘사(2-3문장)","scenes":["장면"],"ohouseIntro":"추천"}';
 
   const BP = [1,2,1,1,3,1,1,2,1,3,1,1,2,1,1,3,2,1,1,2,1,3,1,1,2,1,2,1,3,1,1,2,1,1,3,1,2,1,1,2,3,1,1,2,1,3,1,1,2,1];
 
@@ -381,7 +388,6 @@
     document.getElementById('result-year').textContent = r.year||'—';
     document.getElementById('result-genre-text').textContent = r.genre||'—';
     document.getElementById('result-ticketno').textContent = tNo;
-    document.getElementById('result-traitdesc').textContent = r.traitDesc||'';
     document.getElementById('barcode-num').textContent = tNo;
     document.getElementById('reco-sub').textContent = r.ohouseIntro||'';
 
