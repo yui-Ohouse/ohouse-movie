@@ -64,7 +64,7 @@
     .poster-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: brightness(0.55) saturate(1.2); }
     .poster-gradient { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,8,16,0.92) 0%, rgba(8,8,16,0.2) 55%, transparent 100%); }
     .poster-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 18px 20px 20px; }
-    .genre-badge { display: inline-flex; align-items: center; background: #00A1FF; color: white; font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; }
+    .genre-badge { display: inline-flex; align-items: center; background: #00A1FF; color: white; font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; white-space: nowrap; }
     .movie-title { font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif; font-size: 28px; font-weight: 900; color: white; line-height: 1.2; letter-spacing: -0.5px; }
     .movie-tagline { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 8px; line-height: 1.6; }
 
@@ -429,7 +429,9 @@
   function renderResult(r) {
     const tNo = 'OH-' + (r.year||'2024') + '-' + (Math.floor(Math.random()*9000)+1000);
     document.getElementById('result-img').style.backgroundImage = 'url(' + previewDataUrl + ')';
-    document.getElementById('result-genre-badge').textContent = (r.genreEmoji||'') + ' ' + (r.genre||'');
+    const genreBadge = document.getElementById('result-genre-badge');
+    genreBadge.textContent = (r.genreEmoji||'') + ' ' + (r.genre||'');
+    genreBadge.style.cssText = 'white-space:nowrap;display:inline-block';
     document.getElementById('result-title').textContent = r.title||'';
     document.getElementById('result-tagline').textContent = r.tagline||'';
     document.getElementById('result-year').textContent = r.year||'—';
@@ -441,7 +443,8 @@
     traitsEl.innerHTML = '';
     (r.traits||[]).forEach(t => {
       const sp = document.createElement('span');
-      sp.className = 'trait-tag'; sp.textContent = t;
+      sp.className = 'trait-tag'; sp.style.cssText = 'white-space:nowrap;flex-shrink:0;display:inline-block';
+      sp.textContent = t;
       traitsEl.appendChild(sp);
     });
 
@@ -449,7 +452,8 @@
     castTraitsEl.innerHTML = '';
     (r.castTraits||[]).forEach(t => {
       const sp = document.createElement('span');
-      sp.className = 'trait-tag'; sp.textContent = t;
+      sp.className = 'trait-tag'; sp.style.cssText = 'white-space:nowrap;flex-shrink:0;display:inline-block';
+      sp.textContent = t;
       castTraitsEl.appendChild(sp);
     });
     document.getElementById('result-cast-desc').textContent = r.castDesc||'';
@@ -502,31 +506,19 @@
     btn.disabled = true;
     try {
       await document.fonts.ready;
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 300));
       const w = ticket.offsetWidth;
       const h = ticket.offsetHeight;
-      const scale = 3;
-      const svgDataUrl = await domtoimage.toSvg(ticket, {
-        width: w,
-        height: h,
+      const scale = 2;
+      const blob = await domtoimage.toBlob(ticket, {
+        width: w * scale,
+        height: h * scale,
+        style: {
+          transform: 'scale(' + scale + ')',
+          transformOrigin: 'top left'
+        },
         cacheBust: true
       });
-      const img = new Image();
-      img.width = w * scale;
-      img.height = h * scale;
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = svgDataUrl;
-      });
-      const canvas = document.createElement('canvas');
-      canvas.width = w * scale;
-      canvas.height = h * scale;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, w * scale, h * scale);
-      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
       const file = new File([blob], 'ohouse-movie-ticket.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file] });
