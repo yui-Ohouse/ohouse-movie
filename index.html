@@ -81,16 +81,16 @@
     .section-label-block { font-size: 11px; font-family: 'DM Mono', monospace; color: #666; letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 600; }
     .traits { display: flex; flex-wrap: nowrap; gap: 6px; overflow: hidden; }
     .trait-tag { font-size: 11px; font-weight: 600; background: #EEF7FF; color: #00A1FF; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
-    .trait-desc { font-size: 12px; color: #1a1a1a; line-height: 1.65; }
+    .trait-desc { font-size: 12px; color: #1a1a1a; line-height: 1.65; word-wrap: break-word; overflow-wrap: break-word; word-break: keep-all; }
 
     .cast-section { padding: 14px 20px; border-bottom: 1px dashed rgba(0,0,0,0.1); }
     .cast-traits { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .cast-desc { font-size: 12px; color: #1a1a1a; line-height: 1.65; }
+    .cast-desc { font-size: 12px; color: #1a1a1a; line-height: 1.65; word-wrap: break-word; overflow-wrap: break-word; word-break: keep-all; }
 
     .scenes-section { padding: 14px 20px; border-bottom: 1px dashed rgba(0,0,0,0.1); }
-    .scene-item { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; }
+    .scene-item { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; width: 100%; }
     .scene-arrow { color: #00A1FF; font-size: 12px; margin-top: 2px; flex-shrink: 0; }
-    .scene-text { font-size: 12px; color: #1a1a1a; line-height: 1.6; }
+    .scene-text { font-size: 12px; color: #1a1a1a; line-height: 1.6; word-wrap: break-word; overflow-wrap: break-word; word-break: keep-all; min-width: 0; flex: 1; }
 
     .barcode-section { padding: 12px 20px 14px; }
     .barcode-num { font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(87,87,87,0.3); text-align: center; letter-spacing: 0.22em; margin-top: 4px; }
@@ -455,16 +455,37 @@
     btn.disabled = true;
     try {
       await document.fonts.ready;
-      const w = ticket.offsetWidth;
-      const h = ticket.offsetHeight;
-      const dataUrl = await domtoimage.toPng(ticket, { width: w * 2, height: h * 2, style: { transform: 'scale(2)', transformOrigin: 'top left', width: w + 'px', height: h + 'px' } });
-      const link = document.createElement('a');
-      link.download = 'ohouse-movie-ticket.png';
-      link.href = dataUrl;
-      link.click();
-      btn.textContent = '저장 완료!';
-      setTimeout(() => { btn.textContent = '티켓 이미지 저장하기'; btn.disabled = false; }, 2000);
+      await new Promise(r => setTimeout(r, 300));
+      const w = ticket.scrollWidth;
+      const h = ticket.scrollHeight;
+      const scale = 2;
+      const blob = await domtoimage.toBlob(ticket, {
+        width: w,
+        height: h,
+        cacheBust: true
+      });
+      const bmpUrl = URL.createObjectURL(blob);
+      const img = new Image();
+      await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = bmpUrl; });
+      const canvas = document.createElement('canvas');
+      canvas.width = w * scale;
+      canvas.height = h * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, w * scale, h * scale);
+      URL.revokeObjectURL(bmpUrl);
+      canvas.toBlob(function(pngBlob) {
+        const link = document.createElement('a');
+        link.download = 'ohouse-movie-ticket.png';
+        link.href = URL.createObjectURL(pngBlob);
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+        btn.textContent = '저장 완료!';
+        setTimeout(() => { btn.textContent = '티켓 이미지 저장하기'; btn.disabled = false; }, 2000);
+      }, 'image/png');
     } catch(e) {
+      console.error('Save error:', e);
       btn.textContent = '티켓 이미지 저장하기';
       btn.disabled = false;
       alert('저장에 실패했어요. 다시 시도해 주세요.');
