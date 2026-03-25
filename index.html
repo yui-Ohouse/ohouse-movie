@@ -454,7 +454,18 @@
     btn.textContent = '저장 중...';
     btn.disabled = true;
     try {
-      const canvas = await html2canvas(ticket, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const canvas = await html2canvas(ticket, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        onclone: function(clonedDoc) {
+          const clonedTicket = clonedDoc.querySelector('.ticket');
+          const img = clonedTicket.querySelector('.poster img');
+          if (img) img.style.filter = 'brightness(0.55)';
+          const gradient = clonedTicket.querySelector('.poster-gradient');
+          if (gradient) gradient.style.background = 'linear-gradient(to top, rgba(8,8,16,0.92) 0%, rgba(8,8,16,0.4) 50%, transparent 100%)';
+        }
+      });
       const link = document.createElement('a');
       link.download = 'ohouse-movie-ticket.png';
       link.href = canvas.toDataURL('image/png');
