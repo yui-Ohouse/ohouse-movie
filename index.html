@@ -97,12 +97,14 @@
     .reco-section { padding: 20px; background: white; border-radius: 16px; box-shadow: 0 2px 20px rgba(0,0,0,0.07); margin-top: 16px; animation: fadeUp 0.5s 0.12s ease both; }
     .reco-title { font-size: 16px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
     .reco-sub { font-size: 12px; color: #333; line-height: 1.6; margin-bottom: 14px; }
-    .reco-cards { display: flex; flex-direction: column; gap: 10px; }
-    .reco-card { display: flex; align-items: center; justify-content: space-between; background: white; border-radius: 12px; padding: 14px 16px; text-decoration: none; color: inherit; box-shadow: 0 1px 8px rgba(0,0,0,0.05); }
-    .reco-card-name { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
-    .reco-card-sub { font-size: 11px; color: rgba(87,87,87,0.45); }
-    .reco-arrow { width: 28px; height: 28px; border-radius: 50%; background: #EEF7FF; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    #btn-reset { width: 100%; margin-top: 20px; padding: 15px 0; background: transparent; border: 1.5px solid rgba(87,87,87,0.2); border-radius: 12px; font-size: 14px; font-weight: 600; color: rgba(87,87,87,0.6); cursor: pointer; font-family: inherit; }
+    .reco-cards { display: flex; flex-wrap: wrap; gap: 8px; }
+    .reco-card { display: inline-flex; align-items: center; gap: 6px; background: #EEF7FF; border-radius: 20px; padding: 8px 14px; text-decoration: none; color: #00A1FF; font-size: 13px; font-weight: 600; transition: background 0.2s; }
+    .reco-card:hover { background: #DCF0FF; }
+    .reco-card-name { }
+    .reco-card-sub { display: none; }
+    .reco-arrow { display: flex; align-items: center; flex-shrink: 0; }
+    #btn-reset { width: 100%; margin-top: 20px; padding: 14px 0; background: #00A1FF; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; color: white; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+    #btn-reset:hover { background: #0090e6; }
     .scallop svg { display: block; width: 100%; }
   </style>
 </head>
