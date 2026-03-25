@@ -81,6 +81,8 @@
     .trait-tag { font-size: 11px; font-weight: 600; background: #EEF7FF; color: #00A1FF; padding: 3px 9px; border-radius: 20px; }
     .trait-desc { font-size: 12px; color: rgba(87,87,87,0.7); line-height: 1.65; }
 
+    .cast-section { padding: 14px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+
     .scenes-section { padding: 14px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); }
     .scene-item { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; }
     .scene-arrow { color: #00A1FF; font-size: 12px; margin-top: 2px; flex-shrink: 0; }
@@ -203,6 +205,12 @@
         <div class="trait-desc" id="result-traitdesc"></div>
       </div>
 
+      <div class="cast-section">
+        <div class="section-label">CAST — 이 방에 사는 주인공은</div>
+        <div class="traits" id="result-cast-traits"></div>
+        <div class="trait-desc" id="result-cast-desc"></div>
+      </div>
+
       <div class="scenes-section">
         <div class="section-label">KEY SCENES</div>
         <div id="result-scenes"></div>
@@ -274,7 +282,7 @@
     "규칙: 제목은 색깔+사물+시간 나열 패턴 금지. 여운 있는 제목으로.\n" +
     "장르: ロマンス/ミステリー/ファンタジー/ドラマ/ヒーリング/アートハウス 중 하나\n" +
     "장면: 공감가는 현실적 장면. 방에 이미 있는 아이템 추천 금지.\n\n" +
-    '{"genre":"장르","genreEmoji":"이모지","title":"제목(한국어-10글자)","tagline":"타글(15-25자)","year":"연도(1995-2024)","traits":["특성"],"traitDesc":"설명","scenes":["장면"],"ohouseIntro":"추천"}';
+    '{"genre":"장르","genreEmoji":"이모지","title":"제목(한국어-10글자)","tagline":"타글(15-25자)","year":"연도(1995-2024)","traits":["특성"],"traitDesc":"설명","castTraits":["주인공성격키워드4개"],"castDesc":"이방에사는주인공묘사(2-3문장)","scenes":["장면"],"ohouseIntro":"추천"}';
 
   const BP = [1,2,1,1,3,1,1,2,1,3,1,1,2,1,1,3,2,1,1,2,1,3,1,1,2,1,2,1,3,1,1,2,1,1,3,1,2,1,1,2,3,1,1,2,1,3,1,1,2,1];
 
@@ -386,6 +394,15 @@
       sp.className = 'trait-tag'; sp.textContent = t;
       traitsEl.appendChild(sp);
     });
+
+    const castTraitsEl = document.getElementById('result-cast-traits');
+    castTraitsEl.innerHTML = '';
+    (r.castTraits||[]).forEach(t => {
+      const sp = document.createElement('span');
+      sp.className = 'trait-tag'; sp.textContent = t;
+      castTraitsEl.appendChild(sp);
+    });
+    document.getElementById('result-cast-desc').textContent = r.castDesc||'';
 
     const scenesEl = document.getElementById('result-scenes');
     scenesEl.innerHTML = '';
