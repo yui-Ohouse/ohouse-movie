@@ -365,7 +365,7 @@
       const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
       if (s < 0 || e < 0) { showError('JSON 없음: ' + raw.slice(0,100)); return; }
       let parsed;
-      try { parsed = JSON.parse(raw.slice(s, e+1)); }
+      try { parsed = JSON.parse(raw.slice(s, e+1).replace(/[\x00-\x1F\x7F]/g, ' ')); }
       catch(pe) { showError('파싱 오류: ' + pe.message); return; }
       renderResult(parsed);
     } catch(err) {
@@ -454,12 +454,7 @@
     btn.textContent = '저장 중...';
     btn.disabled = true;
     try {
-      const scale = 2;
-      const dataUrl = await domtoimage.toPng(ticket, {
-        width: ticket.offsetWidth * scale,
-        height: ticket.offsetHeight * scale,
-        style: { transform: 'scale(' + scale + ')', transformOrigin: 'top left' }
-      });
+      const dataUrl = await domtoimage.toPng(ticket, { quality: 1, scale: 2 });
       const link = document.createElement('a');
       link.download = 'ohouse-movie-ticket.png';
       link.href = dataUrl;
