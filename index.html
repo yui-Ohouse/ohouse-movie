@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>내 방이 영화가 된다면? | Ohouse</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #F0F4F8; font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; }
+
+    #screen-upload { align-items: center; justify-content: center; padding: 24px; }
+    .upload-card { width: 100%; max-width: 420px; background: white; border-radius: 20px; box-shadow: 0 2px 20px rgba(0,0,0,0.07); overflow: hidden; }
+    .upload-title { padding: 28px 24px 20px; }
+    .upload-title h1 { font-size: 32px; font-weight: 900; line-height: 1.2; color: #575757; margin-bottom: 8px; }
+    .upload-title h1 span { color: #00A1FF; }
+    .upload-title p { font-size: 14px; color: rgba(87,87,87,0.45); line-height: 1.6; }
+    .divider { height: 1px; border-top: 1.5px dashed rgba(0,0,0,0.1); margin: 0 16px; }
+    .upload-area-wrap { padding: 20px 16px; }
+    .upload-area { width: 100%; background: #F4F6F8; border-radius: 12px; cursor: pointer; min-height: 180px; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: background 0.2s; }
+    .upload-area:hover { background: #ECF1F5; }
+    .upload-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px; }
+    .upload-placeholder .main { font-size: 15px; font-weight: 600; color: rgba(87,87,87,0.6); }
+    .upload-placeholder .sub { font-size: 12px; color: rgba(87,87,87,0.35); }
+    #preview-img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; display: none; }
+    .upload-btn-wrap { padding: 16px; }
+    #btn-analyze { width: 100%; padding: 18px; background: #E8EEF3; color: #B0BEC5; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: not-allowed; font-family: inherit; transition: all 0.2s; }
+    #btn-analyze.ready { background: #00A1FF; color: white; cursor: pointer; }
+
+    #screen-loading { flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 40px; text-align: center; }
+    .loading-icon { width: 80px; height: 80px; background: white; border-radius: 50%; box-shadow: 0 6px 24px rgba(0,161,255,0.18); display: flex; align-items: center; justify-content: center; }
+    #loading-msg { font-size: 18px; font-weight: 700; color: #575757; }
+    .loading-sub { font-size: 13px; color: rgba(87,87,87,0.45); }
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #00A1FF; animation: dotb 1s infinite; }
+    .dot:nth-child(2) { animation-delay: 0.15s; }
+    .dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes dotb { 0%,80%,100%{transform:scale(0.6);opacity:0.3} 40%{transform:scale(1.1);opacity:1} }
+
+    #screen-error { flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 40px; text-align: center; }
+    .err-emoji { font-size: 36px; }
+    .err-title { font-size: 16px; font-weight: 700; color: #575757; }
+    #err-msg { font-size: 12px; color: #999; word-break: break-all; max-width: 300px; line-height: 1.6; }
+    #btn-retry { padding: 12px 28px; background: #00A1FF; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+    #screen-result { flex-direction: column; background: #F0F4F8; }
+    .result-inner { max-width: 420px; width: 100%; margin: 0 auto; padding: 20px 16px 60px; }
+    .ticket { background: white; color: #575757; animation: fadeUp 0.5s ease both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+
+    .ticket-header { padding: 14px 18px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .ticket-logo { display: flex; align-items: center; gap: 7px; }
+    .logo-icon { width: 20px; height: 20px; background: #00A1FF; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+    .logo-text { font-size: 14px; font-weight: 800; }
+    .ticket-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600; color: #00A1FF; letter-spacing: 0.16em; }
+
+    .poster { position: relative; height: 320px; overflow: hidden; }
+    .poster img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.55) saturate(1.2); display: block; }
+    .poster-gradient { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,8,16,0.92) 0%, rgba(8,8,16,0.2) 55%, transparent 100%); }
+    .poster-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 18px 20px 20px; }
+    .genre-badge { display: inline-flex; align-items: center; background: #00A1FF; color: white; font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; }
+    .movie-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 900; color: white; line-height: 1.15; letter-spacing: -0.5px; }
+    .movie-tagline { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 8px; line-height: 1.6; }
+
+    .perforation { display: flex; align-items: center; margin: 0 -1px; }
+    .perf-notch { width: 14px; height: 14px; border-radius: 50%; background: #F0F4F8; flex-shrink: 0; }
+    .perf-line { flex: 1; border-top: 1.5px dashed rgba(0,0,0,0.12); }
+
+    .info-grid { padding: 16px 20px 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px 8px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .info-label { font-size: 8px; font-family: 'DM Mono', monospace; color: rgba(87,87,87,0.4); letter-spacing: 0.12em; margin-bottom: 3px; }
+    .info-value { font-size: 11px; font-weight: 700; color: #575757; line-height: 1.3; }
+
+    .vibe-section { padding: 14px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .section-label { font-size: 8px; font-family: 'DM Mono', monospace; color: rgba(87,87,87,0.4); letter-spacing: 0.12em; margin-bottom: 8px; }
+    .traits { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .trait-tag { font-size: 11px; font-weight: 600; background: #EEF7FF; color: #00A1FF; padding: 3px 9px; border-radius: 20px; }
+    .trait-desc { font-size: 12px; color: rgba(87,87,87,0.7); line-height: 1.65; }
+
+    .scenes-section { padding: 14px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .scene-item { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; }
+    .scene-arrow { color: #00A1FF; font-size: 12px; margin-top: 2px; flex-shrink: 0; }
+    .scene-text { font-size: 12px; color: #575757; line-height: 1.6; }
+
+    .barcode-section { padding: 12px 20px 14px; }
+    .barcode-num { font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(87,87,87,0.3); text-align: center; letter-spacing: 0.22em; margin-top: 4px; }
+
+    .reco-section { padding: 24px 0 0; animation: fadeUp 0.5s 0.12s ease both; }
+    .reco-title { font-size: 13px; font-weight: 800; color: #575757; margin-bottom: 4px; }
+    .reco-sub { font-size: 12px; color: rgba(87,87,87,0.5); line-height: 1.6; margin-bottom: 14px; }
+    .reco-cards { display: flex; flex-direction: column; gap: 10px; }
+    .reco-card { display: flex; align-items: center; justify-content: space-between; background: white; border-radius: 12px; padding: 14px 16px; text-decoration: none; color: inherit; box-shadow: 0 1px 8px rgba(0,0,0,0.05); }
+    .reco-card-name { font-size: 13px; font-weight: 700; color: #575757; margin-bottom: 2px; }
+    .reco-card-sub { font-size: 11px; color: rgba(87,87,87,0.45); }
+    .reco-arrow { width: 28px; height: 28px; border-radius: 50%; background: #EEF7FF; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    #btn-reset { width: 100%; margin-top: 20px; padding: 15px 0; background: transparent; border: 1.5px solid rgba(87,87,87,0.2); border-radius: 12px; font-size: 14px; font-weight: 600; color: rgba(87,87,87,0.6); cursor: pointer; font-family: inherit; }
+    .scallop svg { display: block; width: 100%; }
+  </style>
+</head>
+<body>
+
+<!-- UPLOAD -->
+<div id="screen-upload" class="screen active">
+  <div class="upload-card">
+    <div class="upload-title">
+      <h1>내 방이<br><span>영화</span>가 된다면?</h1>
+      <p>방 사진 한 장으로 나만의 영화 티켓을 만들어보세요</p>
+    </div>
+    <div class="divider"></div>
+    <div class="upload-area-wrap">
+      <div class="upload-area" id="upload-area">
+        <div class="upload-placeholder" id="upload-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#AAAAAA" stroke-width="1.5" width="36" height="36">
+            <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span class="main">방 사진을 업로드해주세요</span>
+          <span class="sub">PNG, JPG 업로드 가능 · 최대 10MB</span>
+        </div>
+        <img id="preview-img" alt="" />
+      </div>
+      <input type="file" id="file-input" accept="image/*" style="display:none" />
+    </div>
+    <div class="divider"></div>
+    <div class="upload-btn-wrap">
+      <button id="btn-analyze" disabled>티켓 발권하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="screen-loading" class="screen">
+  <div class="loading-icon">
+    <svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:#00A1FF">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+    </svg>
+  </div>
+  <div id="loading-msg">티켓 인쇄 중...</div>
+  <div class="loading-sub">AI가 당신의 방을 분석하고 있어요 🎬</div>
+  <div class="dots">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+
+<!-- ERROR -->
+<div id="screen-error" class="screen">
+  <div class="err-emoji">😅</div>
+  <div class="err-title">오류가 났어요</div>
+  <div id="err-msg"></div>
+  <button id="btn-retry">다시 시도</button>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div class="result-inner">
+    <div class="scallop">
+      <svg viewBox="0 0 420 14" preserveAspectRatio="none" height="14">
+        <path d="M0,14 A14,14 0 0,0 28,14 A14,14 0 0,0 56,14 A14,14 0 0,0 84,14 A14,14 0 0,0 112,14 A14,14 0 0,0 140,14 A14,14 0 0,0 168,14 A14,14 0 0,0 196,14 A14,14 0 0,0 224,14 A14,14 0 0,0 252,14 A14,14 0 0,0 280,14 A14,14 0 0,0 308,14 A14,14 0 0,0 336,14 A14,14 0 0,0 364,14 A14,14 0 0,0 392,14 A14,14 0 0,0 420,14 L420,0 L0,0 Z" fill="white"/>
+      </svg>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:white">
+              <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+            </svg>
+          </div>
+          <span class="logo-text">Ohouse</span>
+        </div>
+        <span class="ticket-label">MOVIE TICKET</span>
+      </div>
+
+      <div class="poster">
+        <img id="result-img" alt="" />
+        <div class="poster-gradient"></div>
+        <div class="poster-info">
+          <div class="genre-badge" id="result-genre-badge"></div>
+          <div class="movie-title" id="result-title"></div>
+          <div class="movie-tagline" id="result-tagline"></div>
+        </div>
+      </div>
+
+      <div class="perforation">
+        <div class="perf-notch"></div>
+        <div class="perf-line"></div>
+        <div class="perf-notch"></div>
+      </div>
+
+      <div class="info-grid">
+        <div><div class="info-label">YEAR</div><div class="info-value" id="result-year">—</div></div>
+        <div><div class="info-label">GENRE</div><div class="info-value" id="result-genre-text">—</div></div>
+        <div><div class="info-label">TICKET NO</div><div class="info-value" id="result-ticketno">—</div></div>
+      </div>
+
+      <div class="vibe-section">
+        <div class="section-label">THIS ROOM'S VIBE</div>
+        <div class="traits" id="result-traits"></div>
+        <div class="trait-desc" id="result-traitdesc"></div>
+      </div>
+
+      <div class="scenes-section">
+        <div class="section-label">KEY SCENES</div>
+        <div id="result-scenes"></div>
+      </div>
+
+      <div class="barcode-section">
+        <svg id="barcode-svg" preserveAspectRatio="none" style="display:block;width:100%;height:32px"></svg>
+        <div class="barcode-num" id="barcode-num"></div>
+      </div>
+    </div>
+
+    <div class="scallop">
+      <svg viewBox="0 0 420 14" preserveAspectRatio="none" height="14">
+        <path d="M0,0 A14,14 0 0,1 28,0 A14,14 0 0,1 56,0 A14,14 0 0,1 84,0 A14,14 0 0,1 112,0 A14,14 0 0,1 140,0 A14,14 0 0,1 168,0 A14,14 0 0,1 196,0 A14,14 0 0,1 224,0 A14,14 0 0,1 252,0 A14,14 0 0,1 280,0 A14,14 0 0,1 308,0 A14,14 0 0,1 336,0 A14,14 0 0,1 364,0 A14,14 0 0,1 392,0 A14,14 0 0,1 420,0 L420,14 L0,14 Z" fill="white"/>
+      </svg>
+    </div>
+
+    <div class="reco-section">
+      <div class="reco-title">이 영화 분위기, 방에도 담아보세요</div>
+      <div class="reco-sub" id="reco-sub"></div>
+      <div class="reco-cards" id="reco-cards"></div>
+      <button id="btn-reset">다른 방 사진으로 다시 해보기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const BASE = "https://www.ohouse.com/ja-JP/store";
+  const GC = {
+    "ロマンス": [
+      { n: "ソファ", s: "やわらかい空間づくりに", u: BASE + "/category?category_id=1124" },
+      { n: "ファブリック", s: "カーテン・クッションなど", u: BASE + "/category?category_id=1143" },
+      { n: "インテリア小物・照明", s: "雰囲気を彩るアイテム", u: BASE + "/category?category_id=1128" },
+    ],
+    "ヒーリング": [
+      { n: "ソファ", s: "くつろぎの時間のために", u: BASE + "/category?category_id=1124" },
+      { n: "生活雑貨", s: "毎日が少し楽しくなる", u: BASE + "/category?category_id=1129" },
+      { n: "インテリア小物・照明", s: "癒しの空間に", u: BASE + "/category?category_id=1128" },
+    ],
+    "ドラマ": [
+      { n: "椅子", s: "主役になれる一脚を", u: BASE + "/category?category_id=1127" },
+      { n: "収納家具", s: "整えられた空間が主役", u: BASE + "/category?category_id=1125" },
+      { n: "ベッド", s: "物語のはじまりに", u: BASE + "/category?category_id=1132" },
+    ],
+    "ミステリー": [
+      { n: "インテリア小物・照明", s: "ムードのある照明を", u: BASE + "/category?category_id=1128" },
+      { n: "収納家具", s: "秘密を隠すのに", u: BASE + "/category?category_id=1125" },
+      { n: "椅子", s: "考える椅子が似合う", u: BASE + "/category?category_id=1127" },
+    ],
+    "ファンタジー": [
+      { n: "インテリア小物・照明", s: "非日常を演出する", u: BASE + "/category?category_id=1128" },
+      { n: "ファブリック", s: "色と質感で世界観を", u: BASE + "/category?category_id=1143" },
+      { n: "生活雑貨", s: "ユニークなアイテムを", u: BASE + "/category?category_id=1129" },
+    ],
+    "アートハウス": [
+      { n: "インテリア小物・照明", s: "アートな照明で演出", u: BASE + "/category?category_id=1128" },
+      { n: "椅子", s: "個性的な一脚", u: BASE + "/category?category_id=1127" },
+      { n: "テーブル・机", s: "こだわりの机を", u: BASE + "/category?category_id=1126" },
+    ],
+  };
+  const DC = [
+    { n: "ソファ", s: "くつろぎのアイテム", u: BASE + "/category?category_id=1124" },
+    { n: "インテリア小物・照明", s: "雰囲気をつくるアイテム", u: BASE + "/category?category_id=1128" },
+    { n: "生活雑貨", s: "毎日を彩るアイテム", u: BASE + "/category?category_id=1129" },
+  ];
+
+  const PROMPT =
+    "당신은 영화 평론가입니다. 이 방 사진을 분석하여 아래 JSON으로만 답하세요. JSON 외 다른 텍스트 없이.\n\n" +
+    "규칙: 제목은 색깔+사물+시간 나열 패턴 금지. 여운 있는 제목으로.\n" +
+    "장르: ロマンス/ミステリー/ファンタジー/ドラマ/ヒーリング/アートハウス 중 하나\n" +
+    "장면: 공감가는 현실적 장면. 방에 이미 있는 아이템 추천 금지.\n\n" +
+    '{"genre":"장르","genreEmoji":"이모지","title":"제목(한국어-10글자)","tagline":"타글(15-25자)","year":"연도(1995-2024)","traits":["특성"],"traitDesc":"설명","scenes":["장면"],"ohouseIntro":"추천"}';
+
+  const BP = [1,2,1,1,3,1,1,2,1,3,1,1,2,1,1,3,2,1,1,2,1,3,1,1,2,1,2,1,3,1,1,2,1,1,3,1,2,1,1,2,3,1,1,2,1,3,1,1,2,1];
+
+  let previewDataUrl = null, base64Data = null;
+
+  const uploadArea = document.getElementById('upload-area');
+  const fileInput  = document.getElementById('file-input');
+  const previewImg = document.getElementById('preview-img');
+  const placeholder = document.getElementById('upload-placeholder');
+  const btnAnalyze  = document.getElementById('btn-analyze');
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+  }
+
+  uploadArea.addEventListener('click', () => fileInput.click());
+  uploadArea.addEventListener('dragover', e => e.preventDefault());
+  uploadArea.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+  fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+  document.getElementById('btn-retry').addEventListener('click', reset);
+  document.getElementById('btn-reset').addEventListener('click', reset);
+  btnAnalyze.addEventListener('click', startAnalysis);
+
+  function handleFile(file) {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height, MAX = 1200;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const c = canvas.toDataURL('image/jpeg', 0.82);
+        base64Data = c.split(',')[1];
+        previewDataUrl = c;
+        previewImg.src = c;
+        previewImg.style.display = 'block';
+        placeholder.style.display = 'none';
+        btnAnalyze.disabled = false;
+        btnAnalyze.classList.add('ready');
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function startAnalysis() {
+    showScreen('loading');
+    const msgs = ['티켓 인쇄 중...','장르 분석 중...','주인공 찾는 중...','거의 다 됐어요...'];
+    let mi = 0;
+    document.getElementById('loading-msg').textContent = msgs[0];
+    const iv = setInterval(() => { mi = (mi+1)%msgs.length; document.getElementById('loading-msg').textContent = msgs[mi]; }, 1600);
+    try {
+      const res = await fetch('/.netlify/functions/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1200,
+          messages: [{ role: 'user', content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64Data } },
+            { type: 'text', text: PROMPT },
+          ]}],
+        }),
+      });
+      clearInterval(iv);
+      const data = await res.json();
+      if (!res.ok || !data.content) { showError('API ' + res.status + ': ' + (data.error ? data.error.message : JSON.stringify(data).slice(0,100))); return; }
+      const raw = data.content.map(c => c.text||'').join('');
+      const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+      if (s < 0 || e < 0) { showError('JSON 없음: ' + raw.slice(0,100)); return; }
+      let parsed;
+      try { parsed = JSON.parse(raw.slice(s, e+1)); }
+      catch(pe) { showError('파싱 오류: ' + pe.message); return; }
+      renderResult(parsed);
+    } catch(err) {
+      clearInterval(iv);
+      showError(err.name + ': ' + err.message);
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('err-msg').textContent = msg;
+    showScreen('error');
+  }
+
+  function renderResult(r) {
+    const tNo = 'OH-' + (r.year||'2024') + '-' + (Math.floor(Math.random()*9000)+1000);
+    document.getElementById('result-img').src = previewDataUrl;
+    document.getElementById('result-genre-badge').textContent = (r.genreEmoji||'') + ' ' + (r.genre||'');
+    document.getElementById('result-title').textContent = r.title||'';
+    document.getElementById('result-tagline').textContent = r.tagline||'';
+    document.getElementById('result-year').textContent = r.year||'—';
+    document.getElementById('result-genre-text').textContent = r.genre||'—';
+    document.getElementById('result-ticketno').textContent = tNo;
+    document.getElementById('result-traitdesc').textContent = r.traitDesc||'';
+    document.getElementById('barcode-num').textContent = tNo;
+    document.getElementById('reco-sub').textContent = r.ohouseIntro||'';
+
+    const traitsEl = document.getElementById('result-traits');
+    traitsEl.innerHTML = '';
+    (r.traits||[]).forEach(t => {
+      const sp = document.createElement('span');
+      sp.className = 'trait-tag'; sp.textContent = t;
+      traitsEl.appendChild(sp);
+    });
+
+    const scenesEl = document.getElementById('result-scenes');
+    scenesEl.innerHTML = '';
+    (r.scenes||[]).forEach(sc => {
+      scenesEl.innerHTML += '<div class="scene-item"><span class="scene-arrow">▸</span><span class="scene-text">' + sc + '</span></div>';
+    });
+
+    // Barcode
+    const svg = document.getElementById('barcode-svg');
+    svg.innerHTML = '';
+    let x = 0;
+    BP.forEach((w, i) => {
+      if (i%2===0) {
+        const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        rect.setAttribute('x', x); rect.setAttribute('y', 0);
+        rect.setAttribute('width', w*2.2); rect.setAttribute('height', 40);
+        rect.setAttribute('fill','#575757'); rect.setAttribute('opacity','0.7');
+        svg.appendChild(rect);
+      }
+      x += w*2.2;
+    });
+    svg.setAttribute('viewBox','0 0 '+x+' 40');
+
+    const cats = GC[r.genre]||DC;
+    const cardsEl = document.getElementById('reco-cards');
+    cardsEl.innerHTML = '';
+    cats.forEach(cat => {
+      cardsEl.innerHTML += `
+        <a class="reco-card" href="${cat.u}" target="_blank" rel="noopener noreferrer">
+          <div>
+            <div class="reco-card-name">${cat.n}</div>
+            <div class="reco-card-sub">${cat.s}</div>
+          </div>
+          <div class="reco-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#00A1FF" stroke-width="2.2" width="13" height="13"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </a>`;
+    });
+
+    showScreen('result');
+  }
+
+  function reset() {
+    previewDataUrl = null; base64Data = null;
+    previewImg.src = ''; previewImg.style.display = 'none';
+    placeholder.style.display = 'flex';
+    btnAnalyze.disabled = true; btnAnalyze.classList.remove('ready');
+    fileInput.value = '';
+    showScreen('upload');
+  }
+</script>
+</body>
+</html>
