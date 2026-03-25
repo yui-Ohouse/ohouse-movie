@@ -7,7 +7,10 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.5/dist/dom-to-image-more.min.js"></script>
+  <script type="module" id="screenshot-module">
+    import { domToPng } from 'https://cdn.jsdelivr.net/npm/modern-screenshot@4.4.39/dist/index.js';
+    window.domToPng = domToPng;
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #F0F4F8; font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -454,7 +457,8 @@
     btn.textContent = '저장 중...';
     btn.disabled = true;
     try {
-      const dataUrl = await domtoimage.toPng(ticket, { quality: 1, scale: 2 });
+      await document.fonts.ready;
+      const dataUrl = await window.domToPng(ticket, { scale: 2 });
       const link = document.createElement('a');
       link.download = 'ohouse-movie-ticket.png';
       link.href = dataUrl;
