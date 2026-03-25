@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.5/dist/dom-to-image-more.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #F0F4F8; font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -454,21 +454,15 @@
     btn.textContent = '저장 중...';
     btn.disabled = true;
     try {
-      const canvas = await html2canvas(ticket, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        onclone: function(clonedDoc) {
-          const clonedTicket = clonedDoc.querySelector('.ticket');
-          const img = clonedTicket.querySelector('.poster img');
-          if (img) img.style.filter = 'brightness(0.55)';
-          const gradient = clonedTicket.querySelector('.poster-gradient');
-          if (gradient) gradient.style.background = 'linear-gradient(to top, rgba(8,8,16,0.92) 0%, rgba(8,8,16,0.4) 50%, transparent 100%)';
-        }
+      const scale = 2;
+      const dataUrl = await domtoimage.toPng(ticket, {
+        width: ticket.offsetWidth * scale,
+        height: ticket.offsetHeight * scale,
+        style: { transform: 'scale(' + scale + ')', transformOrigin: 'top left' }
       });
       const link = document.createElement('a');
       link.download = 'ohouse-movie-ticket.png';
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
       link.click();
       btn.textContent = '저장 완료!';
       setTimeout(() => { btn.textContent = '티켓 이미지 저장하기'; btn.disabled = false; }, 2000);
