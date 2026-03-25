@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #F0F4F8; font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -103,7 +104,9 @@
     .reco-card-name { font-size: 13px; font-weight: 700; color: #00A1FF; margin-bottom: 2px; }
     .reco-card-sub { font-size: 11px; color: #999; }
     .reco-arrow { width: 28px; height: 28px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    #btn-reset { width: 100%; margin-top: 20px; padding: 14px 0; background: white; border: 1px solid #E5E5E5; border-radius: 12px; font-size: 14px; font-weight: 700; color: #1a1a1a; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+    #btn-save-ticket { width: 100%; margin-top: 16px; padding: 14px 0; background: #00A1FF; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; color: white; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+    #btn-save-ticket:hover { background: #0090e6; }
+    #btn-reset { width: 100%; margin-top: 20px; padding: 14px 0; background: white; border: 1px solid #E5E5E5; border-radius: 12px; font-size: 14px; font-weight: 700; color: #aaa; cursor: pointer; font-family: inherit; transition: background 0.2s; }
     #btn-reset:hover { background: #EEF7FF; }
     .scallop svg { display: block; width: 100%; }
   </style>
@@ -224,6 +227,8 @@
         <div class="barcode-num" id="barcode-num"></div>
       </div>
     </div>
+
+    <button id="btn-save-ticket">티켓 이미지 저장하기</button>
 
     <div class="reco-section">
       <div class="reco-title">이런 아이템은 어때요?</div>
@@ -442,6 +447,26 @@
 
     showScreen('result');
   }
+
+  document.getElementById('btn-save-ticket').addEventListener('click', async function() {
+    const ticket = document.querySelector('.ticket');
+    const btn = this;
+    btn.textContent = '저장 중...';
+    btn.disabled = true;
+    try {
+      const canvas = await html2canvas(ticket, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const link = document.createElement('a');
+      link.download = 'ohouse-movie-ticket.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      btn.textContent = '저장 완료!';
+      setTimeout(() => { btn.textContent = '티켓 이미지 저장하기'; btn.disabled = false; }, 2000);
+    } catch(e) {
+      btn.textContent = '티켓 이미지 저장하기';
+      btn.disabled = false;
+      alert('저장에 실패했어요. 다시 시도해 주세요.');
+    }
+  });
 
   function reset() {
     previewDataUrl = null; base64Data = null;
