@@ -337,18 +337,16 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1200,
-          messages: [{ role: 'user', content: [
-            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64Data } },
-            { type: 'text', text: PROMPT },
+          contents: [{ parts: [
+            { inline_data: { mime_type: 'image/jpeg', data: base64Data } },
+            { text: PROMPT },
           ]}],
         }),
       });
       clearInterval(iv);
       const data = await res.json();
-      if (!res.ok || !data.content) { showError('API ' + res.status + ': ' + (data.error ? data.error.message : JSON.stringify(data).slice(0,100))); return; }
-      const raw = data.content.map(c => c.text||'').join('');
+      if (!res.ok || !data.candidates) { showError('API ' + res.status + ': ' + (data.error ? data.error.message : JSON.stringify(data).slice(0,100))); return; }
+      const raw = data.candidates[0].content.parts.map(p => p.text||'').join('');
       const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
       if (s < 0 || e < 0) { showError('JSON 없음: ' + raw.slice(0,100)); return; }
       let parsed;
