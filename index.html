@@ -471,8 +471,9 @@
         let sx, sy, sw, sh;
         if (ir > pr) { sh = img.height; sw = sh * pr; sx = (img.width - sw) / 2; sy = 0; }
         else { sw = img.width; sh = sw / pr; sx = 0; sy = (img.height - sh) / 2; }
-        ctx.filter = 'brightness(0.55) saturate(1.2)';
         ctx.drawImage(img, sx, sy, sw, sh, 0, 0, pw, ph);
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillRect(0, 0, pw, ph);
         resolve(c.toDataURL('image/jpeg', 0.92));
       };
       img.src = dataUrl;
