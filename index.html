@@ -479,14 +479,22 @@
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, w * scale, h * scale);
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = 'ohouse-movie-ticket.png';
-      link.href = dataUrl;
-      link.click();
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      const file = new File([blob], 'ohouse-movie-ticket.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] });
+      } else {
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = 'ohouse-movie-ticket.png';
+        link.href = blobUrl;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      }
       btn.textContent = '저장 완료!';
       setTimeout(() => { btn.textContent = '티켓 이미지 저장하기'; btn.disabled = false; }, 2000);
     } catch(e) {
+      if (e.name === 'AbortError') { btn.textContent = '티켓 이미지 저장하기'; btn.disabled = false; return; }
       console.error('Save error:', e);
       btn.textContent = '티켓 이미지 저장하기';
       btn.disabled = false;
