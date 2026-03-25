@@ -341,7 +341,7 @@
     document.getElementById('loading-msg').textContent = msgs[0];
     const iv = setInterval(() => { mi = (mi+1)%msgs.length; document.getElementById('loading-msg').textContent = msgs[mi]; }, 1600);
     try {
-      const res = await fetch('/.netlify/functions/analyze', {
+      const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
