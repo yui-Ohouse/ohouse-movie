@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.5/dist/dom-to-image-more.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #F0F4F8; font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -323,7 +323,8 @@
   const PROMPT =
     "당신은 다정한 영화 평론가예요. 이 방 사진을 분석하여 아래 JSON으로만 답하세요. JSON 외 다른 텍스트 없이.\n\n" +
     "규칙:\n" +
-    "- 중요: title은 반드시 아래 영화 목록에서 방 분위기에 가장 어울리는 것을 골라주세요. 직접 만들지 마세요.\n" +
+    "- 중요: title은 반드시 아래 영화 목록에서 골라주세요. 직접 만들지 마세요.\n" +
+    "- 영화 선택 기준: 제목의 글자가 아니라, 영화의 실제 줄거리/분위기/감성이 이 공간과 어울리는지를 기준으로 골라주세요. 예: 사무실 사진이면 직장인/일 관련 영화, 아늑한 방이면 힐링/로맨스 영화.\n" +
     "- genre: 선택한 영화의 실제 장르를 한국어로 (로맨스/미스터리/판타지/드라마/힐링/아트하우스/액션/코미디/SF/스릴러 중 하나)\n" +
     "- year: 선택한 영화의 실제 개봉 연도\n" +
     "- tagline, traits, castTraits, castDesc, scenes: 방 사진의 분위기와 선택한 영화를 연결해서 다정하게 작성\n" +
@@ -507,18 +508,14 @@
     try {
       await document.fonts.ready;
       await new Promise(r => setTimeout(r, 300));
-      const w = ticket.offsetWidth;
-      const h = ticket.offsetHeight;
-      const scale = 2;
-      const blob = await domtoimage.toBlob(ticket, {
-        width: w * scale,
-        height: h * scale,
-        style: {
-          transform: 'scale(' + scale + ')',
-          transformOrigin: 'top left'
-        },
-        cacheBust: true
+      const canvas = await html2canvas(ticket, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        logging: false
       });
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       const file = new File([blob], 'ohouse-movie-ticket.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file] });
