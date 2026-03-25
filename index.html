@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.5/dist/dom-to-image-more.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #F0F4F8; font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -61,7 +61,7 @@
     .ticket-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600; color: #00A1FF; letter-spacing: 0.1em; white-space: nowrap; flex-shrink: 0; display: inline-block; }
 
     .poster { position: relative; height: 320px; overflow: hidden; }
-    .poster img { width: 100%; height: 100%; display: block; }
+    .poster img { width: 100%; height: 100%; display: block; object-fit: cover; filter: brightness(0.55) saturate(1.2); }
     .poster-gradient { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,8,16,0.92) 0%, rgba(8,8,16,0.2) 55%, transparent 100%); }
     .poster-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 18px 20px 20px; }
     .genre-badge { display: inline-flex; align-items: center; background: #00A1FF; color: white; font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; white-space: nowrap; }
@@ -458,7 +458,7 @@
     showScreen('error');
   }
 
-  // Pre-bake poster image: crop to poster ratio + darken, return as data URL
+  // Pre-bake poster image: just crop to poster ratio, CSS filter handles darkening
   function createPosterDataUrl(dataUrl) {
     return new Promise(resolve => {
       const img = new Image();
@@ -472,8 +472,6 @@
         if (ir > pr) { sh = img.height; sw = sh * pr; sx = (img.width - sw) / 2; sy = 0; }
         else { sw = img.width; sh = sw / pr; sx = 0; sy = (img.height - sh) / 2; }
         ctx.drawImage(img, sx, sy, sw, sh, 0, 0, pw, ph);
-        ctx.fillStyle = 'rgba(0,0,0,0.45)';
-        ctx.fillRect(0, 0, pw, ph);
         resolve(c.toDataURL('image/jpeg', 0.92));
       };
       img.src = dataUrl;
@@ -563,14 +561,19 @@
     const ticket = document.querySelector('.ticket');
     await document.fonts.ready;
     await new Promise(r => setTimeout(r, 300));
-    const canvas = await html2canvas(ticket, {
-      scale: 3,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      logging: false
+    const scale = 3;
+    const w = ticket.offsetWidth;
+    const h = ticket.offsetHeight;
+    const blob = await domtoimage.toBlob(ticket, {
+      width: w * scale,
+      height: h * scale,
+      style: {
+        transform: 'scale(' + scale + ')',
+        transformOrigin: 'top left'
+      },
+      cacheBust: true
     });
-    return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    return blob;
   }
 
   btnShare.addEventListener('click', async function() {
