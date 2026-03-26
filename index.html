@@ -50,7 +50,7 @@
     #btn-retry { padding: 12px 28px; background: #00A1FF; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
     #screen-result { flex-direction: column; background: #F0F4F8; }
-    .result-inner { max-width: 420px; width: 100%; margin: 0 auto; padding: 20px 16px 60px; }
+    .result-inner { max-width: 420px; width: 100%; margin: 0 auto; padding: 20px 24px 60px; }
     .ticket { background: white; color: #575757; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); border: 1px solid rgba(0,0,0,0.06); overflow: hidden; animation: fadeUp 0.5s ease both; }
     @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
 
@@ -576,7 +576,7 @@
     ticket.style.animation = 'none';
     ticket.style.opacity = '1';
     const canvas = await html2canvas(ticket, {
-      scale: 2,
+      scale: 3,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
