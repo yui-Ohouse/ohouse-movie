@@ -635,25 +635,15 @@
     btn.style.pointerEvents = 'none';
     try {
       const blob = await captureTicket();
-      if (isMobile) {
-        // Mobile: try native share with file, fallback to opening image in new tab
-        var file = new File([blob], 'ohouse-movie-ticket.png', { type: 'image/png' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file] });
-        } else {
-          var blobUrl = URL.createObjectURL(blob);
-          window.open(blobUrl, '_blank');
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-        }
-      } else {
-        // Desktop: download via link
-        var blobUrl = URL.createObjectURL(blob);
-        var link = document.createElement('a');
-        link.download = 'ohouse-movie-ticket.png';
-        link.href = blobUrl;
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-      }
+      // Try <a download> first (works on desktop + most Android Chrome)
+      var blobUrl = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.download = 'ohouse-movie-ticket.png';
+      link.href = blobUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
     } catch(e) {
       if (e.name !== 'AbortError') alert('저장에 실패했어요. 다시 시도해 주세요.');
     }
