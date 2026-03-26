@@ -61,7 +61,7 @@
     .ticket-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600; color: #00A1FF; letter-spacing: 0.1em; white-space: nowrap; flex-shrink: 0; display: inline-block; }
 
     .poster { position: relative; height: 320px; overflow: hidden; }
-    .poster img { width: 100%; height: 100%; display: block; object-fit: cover; filter: brightness(0.55) saturate(1.2); }
+    .poster canvas { width: 100%; height: 100%; display: block; }
     .poster-gradient { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,8,16,0.92) 0%, rgba(8,8,16,0.2) 55%, transparent 100%); }
     .poster-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 18px 20px 20px; }
     .genre-badge { display: inline-flex; align-items: center; background: #00A1FF; color: white; font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; white-space: nowrap; }
@@ -194,7 +194,7 @@
       </div>
 
       <div class="poster">
-        <img id="result-img" alt="" />
+        <canvas id="result-canvas"></canvas>
         <div class="poster-gradient"></div>
         <div class="poster-info">
           <div class="genre-badge" id="result-genre-badge"></div>
@@ -458,21 +458,32 @@
     showScreen('error');
   }
 
-  // Pre-bake poster image: just crop to poster ratio, CSS filter handles darkening
-  function createPosterDataUrl(dataUrl) {
+  // Draw poster directly onto the in-DOM canvas with crop + brightness/saturation baked in
+  function drawPosterCanvas(dataUrl) {
     return new Promise(resolve => {
       const img = new Image();
       img.onload = () => {
-        const c = document.createElement('canvas');
+        const canvas = document.getElementById('result-canvas');
         const pw = 840, ph = 640;
-        c.width = pw; c.height = ph;
-        const ctx = c.getContext('2d');
+        canvas.width = pw; canvas.height = ph;
+        const ctx = canvas.getContext('2d');
         const ir = img.width / img.height, pr = pw / ph;
         let sx, sy, sw, sh;
         if (ir > pr) { sh = img.height; sw = sh * pr; sx = (img.width - sw) / 2; sy = 0; }
         else { sw = img.width; sh = sw / pr; sx = 0; sy = (img.height - sh) / 2; }
         ctx.drawImage(img, sx, sy, sw, sh, 0, 0, pw, ph);
-        resolve(c.toDataURL('image/jpeg', 0.92));
+        // Bake brightness(0.55) + saturate(1.2) via pixel manipulation
+        var id = ctx.getImageData(0, 0, pw, ph);
+        var d = id.data;
+        for (var i = 0; i < d.length; i += 4) {
+          var r = d[i] * 0.55, g = d[i+1] * 0.55, b = d[i+2] * 0.55;
+          var avg = (r + g + b) / 3;
+          d[i]   = Math.min(255, avg + (r - avg) * 1.2);
+          d[i+1] = Math.min(255, avg + (g - avg) * 1.2);
+          d[i+2] = Math.min(255, avg + (b - avg) * 1.2);
+        }
+        ctx.putImageData(id, 0, 0);
+        resolve();
       };
       img.src = dataUrl;
     });
@@ -481,7 +492,7 @@
   async function renderResult(r) {
     const tNo = 'OH-' + (r.year||'2024') + '-' + (Math.floor(Math.random()*9000)+1000);
     // Set poster image: pre-baked (cropped + darkened), no object-fit or CSS filter needed
-    document.getElementById('result-img').src = await createPosterDataUrl(previewDataUrl);
+    await drawPosterCanvas(previewDataUrl);
     const genreBadge = document.getElementById('result-genre-badge');
     genreBadge.textContent = (r.genreEmoji||'') + ' ' + (r.genre||'');
     genreBadge.style.cssText = 'white-space:nowrap;display:inline-block';
