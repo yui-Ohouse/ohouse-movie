@@ -571,13 +571,19 @@
     const ticket = document.querySelector('.ticket');
     await document.fonts.ready;
     await new Promise(r => setTimeout(r, 300));
+    // Disable animation so html2canvas doesn't capture mid-animation opacity
+    var origAnim = ticket.style.animation;
+    ticket.style.animation = 'none';
+    ticket.style.opacity = '1';
     const canvas = await html2canvas(ticket, {
-      scale: 3,
+      scale: 2,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
       logging: false
     });
+    ticket.style.animation = origAnim;
+    ticket.style.opacity = '';
     return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
   }
 
